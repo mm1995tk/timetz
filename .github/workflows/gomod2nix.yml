@@ -1,0 +1,37 @@
+name: gomod2nix
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "go.mod"
+      - "go.sum"
+
+  pull_request:
+    paths:
+      - "go.mod"
+      - "go.sum"
+
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - run: gomod2nix
+        shell: nix develop .#gomod2nix --command bash -e {0}
+
+      - run: nix fmt ./gomod2nix.toml
+
+      - uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: gomod2nix
+          delete-branch: true
+          base: ${{ github.head_ref || github.ref_name }}
+          title: |
+            ci: gomod2nix.
+          # reviewers: mm1995tk

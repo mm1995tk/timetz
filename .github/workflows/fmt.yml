@@ -1,0 +1,32 @@
+name: nix fmt
+on:
+  pull_request:
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Format
+        run: nix fmt
+
+      - uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: nix fmt
+          delete-branch: true
+          base: ${{ github.head_ref || github.ref_name }}
+          title: |
+            ci: update files.
+          reviewers: mm1995tk
+      - name: exec gomod2nix and then check diff
+        run: |
+          diff_output=$(git diff --stat)
+
+          if [[ -n "$diff_output" ]]; then
+              exit 1
+          else
+              exit 0
+          fi
