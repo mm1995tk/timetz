@@ -33,6 +33,12 @@
         ];
       };
 
+      devShells.gomod2nix = pkgs.mkShell {
+        buildInputs = [
+          pkgs.gomod2nix
+        ];
+      };
+
       formatter = treefmtEval.config.build.wrapper;
       checks.formatting = treefmtEval.config.build.check self;
     });
